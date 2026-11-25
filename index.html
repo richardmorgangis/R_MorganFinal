@@ -1,0 +1,521 @@
+
+<!DOCTYPE html>
+<HTML>
+<HEAD>
+    <link rel="stylesheet" href="https://js.arcgis.com/5.1/esri/themes/light/main.css" />
+    <script type="module" src="https://js.arcgis.com/5.1/"></script>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* MAIN GRID */
+
+        .container {
+            display: grid;
+            grid-template-columns: 260px minmax(0, 1fr) 300px;
+            grid-template-rows: 100px minmax(500px, 1fr) 180px;
+
+            grid-template-areas:
+                "header header header"
+                "layers map survey"
+                "dashboard help survey";
+
+            gap: 10px;
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        header { grid-area: header; }
+        .layers-panel { grid-area: layers; }
+        .map-panel { grid-area: map; }
+        .survey-panel { grid-area: survey; }
+        .dashboard { grid-area: dashboard; }
+        .help-panel { grid-area: help; }
+
+        /* HEADER */
+
+        header {
+            background-color: #263B44;
+            color: white;
+            padding: 15px 20px;
+        }
+
+        header h1 {
+            margin: 0 0 5px 0;
+        }
+
+        header p {
+            margin: 0;
+        }
+
+        /* PANELS */
+
+        .layers-panel, .survey-panel, .help-panel {
+            background-color: #E8ECE9;
+            padding: 10px;
+            border: 1px solid #C9D2CC;
+        }
+
+        /* LAYERS AND LEGEND WIDTH */
+
+        .layers-panel {
+            width: 100%;
+            min-width: 0;
+            overflow-x: hidden;
+        }
+
+        arcgis-layer-list,
+        arcgis-legend {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .map-panel, .dashboard {
+            background-color: white;
+            padding: 10px;
+            border: 1px solid #C9D2CC;
+        }
+
+        .map-panel {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        arcgis-map {
+            display: block;
+            width: 100%;
+            height: 100%;
+            min-height: 450px;
+        }
+
+        /* HELP PANEL */
+
+        .help-panel {
+            font-size: 13px;
+            overflow: auto;
+        }
+
+        .help-panel h3 {
+            margin: 0 0 8px 0;
+        }
+
+        .help-panel p {
+            margin: 3px 0;
+        }
+
+        /* FOOTER */
+
+        footer {
+            grid-column: 1 / -1;
+            background-color: #263B44;
+            color: white;
+            padding: 10px;
+        }
+
+        /* BUTTON */
+
+        #addSightingBtn {
+            background-color: #42664B;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        #addSightingBtn:hover {
+            background-color: #314D38;
+        }
+
+        /* DATA SOURCE REFERENCES */
+
+        .references {
+            font-size: 12px;
+            line-height: 1.4;
+            max-height: 450px;
+            overflow-y: auto;
+        }
+
+        .references p {
+            margin-bottom: 12px;
+            overflow-wrap: anywhere;
+        }
+
+        /* SMALLER SCREENS */
+
+        @media (max-width: 850px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 100px 450px auto auto auto auto;
+                grid-template-areas:
+                    "header"
+                    "map"
+                    "layers"
+                    "survey"
+                    "dashboard"
+                    "help";
+            }
+        }
+
+    </style>
+</HEAD>
+
+<BODY>
+
+    <div class="container">
+
+        <!-- HEADER -->
+
+        <header>
+            <h1>BIGFOOT SIGHTINGS</h1>
+            <p>Field Research Database</p>
+        </header>
+
+        <!-- LEFT: LAYERS -->
+
+        <aside class="layers-panel">
+
+            <h3>Layers</h3>
+
+            <arcgis-layer-list reference-element="myMap"></arcgis-layer-list>
+
+            <h3>Legend</h3>
+
+            <arcgis-legend reference-element="myMap"></arcgis-legend>
+
+        </aside>
+
+        <!-- CENTER: WEB MAP -->
+
+        <main class="map-panel">
+
+            <h3>Web Map</h3>
+
+            <arcgis-map id="myMap" item-id="f9620e19fc114d0babe0006b7607ac70">
+
+                <arcgis-zoom slot="top-left"></arcgis-zoom>
+
+            </arcgis-map>
+
+        </main>
+
+        <!-- RIGHT: SURVEY123 -->
+
+        <aside class="survey-panel">
+
+            <h3>Survey123</h3>
+
+            <button id="addSightingBtn">Add Sighting</button>
+
+            <!-- DATA SOURCES -->
+
+            <h3>Data Sources & References</h3>
+
+            <div class="references">
+
+                <p>
+                    Colorado Geospatial Portal.
+                    "CPW Facilities."
+                    <i>CPWAdminData</i>, 2026,
+                    <a href="https://geodata.colorado.gov/datasets/CPW::cpwadmindata/explore?layer=0"
+                       target="_blank">
+                        geodata.colorado.gov
+                    </a>.
+                </p>
+
+                <p>
+                    Kanode, Matt, and CPWGIS.
+                    <i>CPWTrails</i>.
+                    Colorado Parks and Wildlife, 2026,
+                    <a href="https://cpw.widencollective.com/portals/ylxzq9d5/MapLibrary#c068d3e4-f082-4622-a144-7666e4d10f39"
+                       target="_blank">
+                        CPW Map Library
+                    </a>.
+                    KMZ file.
+                </p>
+
+                <p>
+                    National Atlas of the United States.
+                    <i>Cities and Towns of the United States</i>, 2014,
+                    <a href="https://earthworks.stanford.edu/catalog/stanford-bx729wr3020"
+                       target="_blank">
+                        Stanford Earthworks
+                    </a>.
+                    Shapefile.
+                </p>
+
+                <p>
+                    United States Census Bureau.
+                    <i>Counties and Equivalent (Current)</i>, 2025,
+                    <a href="https://www.census.gov/cgi-bin/geo/shapefiles/index.php"
+                       target="_blank">
+                        U.S. Census Bureau
+                    </a>.
+                    Shapefile.
+                </p>
+
+                <p>
+                    United States Geological Survey.
+                    <i>1/3rd Arc-Second DEM Park County, CO</i>.
+                    National Geospatial Program, 2026,
+                    <a href="https://apps.nationalmap.gov/downloader/"
+                       target="_blank">
+                        The National Map Downloader
+                    </a>.
+                    DEM.
+                </p>
+
+            </div>
+
+        </aside>
+
+        <!-- BOTTOM LEFT: DASHBOARD -->
+
+        <section class="dashboard">
+
+            <h3>Research Dashboard</h3>
+
+            <p>Total Sightings: --</p>
+            <p>Reviewed Reports: --</p>
+
+        </section>
+
+        <!-- BOTTOM CENTER: HELP -->
+
+        <section class="help-panel">
+
+            <h3>Description / Help</h3>
+
+            <strong>Map Center</strong>
+
+            <p>Latitude: <span id="mapLatitude">--</span></p>
+            <p>Longitude: <span id="mapLongitude">--</span></p>
+
+            <strong>Map Extent</strong>
+
+            <p>Elevation: <span id="mapElevation">--</span> ft</p>
+
+            <p>North: <span id="extentNorth">--</span></p>
+            <p>South: <span id="extentSouth">--</span></p>
+            <p>East: <span id="extentEast">--</span></p>
+            <p>West: <span id="extentWest">--</span></p>
+
+        </section>
+
+        <!-- FOOTER -->
+
+        <footer>
+            Bigfoot Sightings Project | Version 1.0
+        </footer>
+
+        <!-- JAVASCRIPT -->
+
+
+<script type="module">
+
+    // IMPORT ARCGIS LIBRARIES
+
+    const [Graphic, GraphicsLayer, ImageryTileLayer] = await $arcgis.import([
+        "@arcgis/core/Graphic.js",
+        "@arcgis/core/layers/GraphicsLayer.js",
+        "@arcgis/core/layers/ImageryTileLayer.js"
+    ]);
+
+    // WAIT FOR THE WEB MAP TO LOAD
+
+    const viewElement = document.querySelector("arcgis-map");
+
+    await viewElement.viewOnReady();
+
+    // ACCESS THE MAP AND VIEW
+
+    const map = viewElement.map;
+    const view = viewElement.view;
+
+    // CONNECT TO THE ELEVATION IMAGE SERVICE
+    // This layer is used for queries only.
+    // It is NOT added to the visible map.
+
+    const elevationLayer = new ImageryTileLayer({
+        url: "https://tiledimageservices.arcgis.com/YseQBnl2jq0lrUV5/arcgis/rest/services/Park_Elevation_Query/ImageServer"
+    });
+
+    let elevationAvailable = false;
+
+    try {
+
+        await elevationLayer.load();
+
+        elevationAvailable = true;
+
+        console.log("Elevation service loaded successfully.");
+
+    } catch (error) {
+
+        console.error("Elevation service failed to load:", error);
+
+    }
+
+    // UPDATE MAP COORDINATES AND EXTENT
+
+    function updateMapInformation() {
+
+        const center = view.center;
+        const extent = view.extent;
+
+        document.getElementById("mapLatitude").textContent =
+            center.latitude.toFixed(5);
+
+        document.getElementById("mapLongitude").textContent =
+            center.longitude.toFixed(5);
+
+        document.getElementById("extentNorth").textContent =
+            extent.ymax.toFixed(5);
+
+        document.getElementById("extentSouth").textContent =
+            extent.ymin.toFixed(5);
+
+        document.getElementById("extentEast").textContent =
+            extent.xmax.toFixed(5);
+
+        document.getElementById("extentWest").textContent =
+            extent.xmin.toFixed(5);
+
+    }
+
+    updateMapInformation();
+
+    view.watch("extent", updateMapInformation);
+
+    // CREATE TEMPORARY SIGHTING LAYER
+
+    const sightingGraphics = new GraphicsLayer({
+        title: "Selected Sighting Location"
+    });
+
+    map.add(sightingGraphics);
+
+    // MAP CLICK EVENT
+
+    viewElement.addEventListener("arcgisViewClick", async (event) => {
+
+        const { mapPoint } = event.detail;
+
+        // REMOVE THE PREVIOUS RED DOT
+
+        sightingGraphics.removeAll();
+
+        // CREATE A NEW RED DOT AT THE CLICKED LOCATION
+
+        const sightingPoint = new Graphic({
+            geometry: mapPoint,
+            symbol: {
+                type: "simple-marker",
+                color: "red",
+                size: "12px",
+                outline: {
+                    color: "white",
+                    width: 2
+                }
+            }
+        });
+
+        sightingGraphics.add(sightingPoint);
+
+        // DISPLAY CLICKED COORDINATES
+
+        console.log("Longitude:", mapPoint.longitude);
+        console.log("Latitude:", mapPoint.latitude);
+
+        // GET ELEVATION
+
+        const elevationDisplay = document.getElementById("mapElevation");
+
+        elevationDisplay.textContent = "Loading...";
+
+        if (!elevationAvailable) {
+
+            elevationDisplay.textContent = "Service unavailable";
+
+            return;
+
+        }
+
+        try {
+
+            // QUERY THE ELEVATION IMAGE SERVICE AT THE CLICKED LOCATION
+
+            const result = await elevationLayer.identify(mapPoint);
+
+            console.log("Elevation query result:", result);
+
+            // GET THE FIRST PIXEL VALUE
+
+            const pixelValue = Array.isArray(result.value)
+                ? result.value[0]
+                : result.value;
+
+            // CHECK THAT THE RESULT IS A VALID NUMBER
+
+            if (pixelValue !== null &&
+                pixelValue !== undefined &&
+                Number.isFinite(Number(pixelValue))) {
+
+                // CONVERT METERS TO FEET
+
+                const elevationFeet = Number(pixelValue) * 3.28084;
+
+                // DISPLAY ELEVATION
+
+                elevationDisplay.textContent =
+                    Math.round(elevationFeet).toLocaleString();
+
+                console.log("Elevation in meters:", pixelValue);
+                console.log("Elevation in feet:", elevationFeet);
+
+            } else {
+
+                elevationDisplay.textContent = "No data";
+
+            }
+
+        } catch (error) {
+
+            console.error("Elevation query error:", error);
+
+            elevationDisplay.textContent = "Unavailable";
+
+        }
+
+    });
+
+    // OPEN SURVEY123 FORM IN A NEW TAB
+
+    document.getElementById("addSightingBtn").addEventListener("click", function() {
+
+        window.open(
+            "https://survey123.arcgis.com/share/b36278e433af4a50947fc95b60b58676",
+            "_blank"
+        );
+
+    });
+
+    console.log("Bigfoot Research Application Loaded");
+
+</script>
+
+    </div>
+
+</BODY>
+</HTML>
